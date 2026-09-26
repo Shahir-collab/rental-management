@@ -41,6 +41,6 @@ def print_receipt(request: Request, payment_id: str):
             'landlord_address': 'Muzammil House, Vanoor Maruthakkad, Alathur P.O., Alathur Taluk'
         }
         
-        return request.app.state.templates.TemplateResponse('receipt_print.html', {'request': request, 'receipt': receipt})
+        return request.app.state.templates.TemplateResponse(request, 'receipt_print.html', {'request': request, 'receipt': receipt})
     finally:
         db.close()

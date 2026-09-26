@@ -9,13 +9,13 @@ router = APIRouter(prefix="/import-export", tags=["import_export"])
 
 @router.get("/")
 def import_export_page(request: Request):
-    return request.app.state.templates.TemplateResponse("import_export.html", {"request": request})
+    return request.app.state.templates.TemplateResponse(request, "import_export.html", {"request": request})
 
 @router.post("/import")
 async def import_data(request: Request, file: UploadFile = File(...)):
     # Placeholder for actual import logic
     content = await file.read()
-    return request.app.state.templates.TemplateResponse("import_export.html", {"request": request, "message": f"Successfully processed {file.filename}"})
+    return request.app.state.templates.TemplateResponse(request, "import_export.html", {"request": request, "message": f"Successfully processed {file.filename}"})
 
 @router.get("/export-csv")
 def export_csv():

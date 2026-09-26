@@ -34,7 +34,7 @@ def list_revisions(request: Request):
                 'effective_date': r.effective_date,
                 'reason': r.reason
             })
-        return request.app.state.templates.TemplateResponse('rent_revisions.html', {'request': request, 'revisions': revisions})
+        return request.app.state.templates.TemplateResponse(request, 'rent_revisions.html', {'request': request, 'revisions': revisions})
     finally:
         db.close()
 
@@ -48,7 +48,7 @@ def new_revision_form(request: Request, tenant_id: str = None):
             residence = db.query(Residence).filter_by(tenant_id=tenant_id, move_out=None).first()
             if residence:
                 current_rent = residence.monthly_rent
-        return request.app.state.templates.TemplateResponse('rent_revision_form.html', {'request': request, 'mode': 'create', 'tenants': tenants, 'current_rent': current_rent})
+        return request.app.state.templates.TemplateResponse(request, 'rent_revision_form.html', {'request': request, 'mode': 'create', 'tenants': tenants, 'current_rent': current_rent})
     finally:
         db.close()
 

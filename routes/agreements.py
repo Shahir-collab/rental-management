@@ -47,7 +47,7 @@ def list_agreements(request: Request, status: str = None):
                 "remarks": a.remarks or "",
             })
 
-        return request.app.state.templates.TemplateResponse("agreements.html", {
+        return request.app.state.templates.TemplateResponse(request, "agreements.html", {
             "request": request,
             "agreements": agreements,
             "current_status": status or "All",
@@ -62,7 +62,7 @@ def agreement_detail(request: Request, agr_id: str):
     try:
         a = db.query(RentalAgreement).filter(RentalAgreement.id == agr_id).first()
         if not a:
-            return request.app.state.templates.TemplateResponse("agreement_detail.html", {
+            return request.app.state.templates.TemplateResponse(request, "agreement_detail.html", {
                 "request": request, "agreement": None, "witnesses": []
             })
 
@@ -112,7 +112,7 @@ def agreement_detail(request: Request, agr_id: str):
                     "remarks": aw.remarks or "",
                 })
 
-        return request.app.state.templates.TemplateResponse("agreement_detail.html", {
+        return request.app.state.templates.TemplateResponse(request, "agreement_detail.html", {
             "request": request,
             "agreement": agreement,
             "witnesses": witnesses,

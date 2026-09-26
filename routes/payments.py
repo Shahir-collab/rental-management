@@ -37,7 +37,7 @@ def list_payments(request: Request):
                 'payment_method': p.payment_method,
                 'reference_no': p.reference_no
             })
-        return request.app.state.templates.TemplateResponse('payments.html', {'request': request, 'payments': payments})
+        return request.app.state.templates.TemplateResponse(request, 'payments.html', {'request': request, 'payments': payments})
     finally:
         db.close()
 
@@ -46,7 +46,7 @@ def new_payment_form(request: Request, tenant_id: str = None, month: str = None)
     db = SessionLocal()
     try:
         tenants = db.query(Tenant).filter_by(current_status='Active').all()
-        return request.app.state.templates.TemplateResponse('payment_form.html', {'request': request, 'mode': 'create', 'tenants': tenants, 'current_month': datetime.date.today().strftime('%b %Y')})
+        return request.app.state.templates.TemplateResponse(request, 'payment_form.html', {'request': request, 'mode': 'create', 'tenants': tenants, 'current_month': datetime.date.today().strftime('%b %Y')})
     finally:
         db.close()
 

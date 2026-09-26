@@ -32,7 +32,7 @@ def list_tenants(request: Request, status: str = None, type: str = None):
                 "agreement_count": agr_count,
             })
 
-        return request.app.state.templates.TemplateResponse("tenants.html", {
+        return request.app.state.templates.TemplateResponse(request, "tenants.html", {
             "request": request,
             "tenants": tenants,
         })
@@ -46,7 +46,7 @@ def tenant_profile(request: Request, tenant_id: str):
     try:
         tenant_raw = db.query(Tenant).filter(Tenant.id == tenant_id).first()
         if not tenant_raw:
-            return request.app.state.templates.TemplateResponse("tenant_profile.html", {
+            return request.app.state.templates.TemplateResponse(request, "tenant_profile.html", {
                 "request": request, "tenant": None, "residences": [],
                 "agreements": [], "agreement_witnesses": [], "deposits": [],
                 "stats": {}
@@ -167,7 +167,7 @@ def tenant_profile(request: Request, tenant_id: str):
             "total_deposits": total_deposits,
         }
 
-        return request.app.state.templates.TemplateResponse("tenant_profile.html", {
+        return request.app.state.templates.TemplateResponse(request, "tenant_profile.html", {
             "request": request,
             "tenant": tenant,
             "residences": residences,

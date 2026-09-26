@@ -22,7 +22,7 @@ def get_next_id(db, model_class, prefix):
 # Tenant CRUD
 @router.get("/tenants/new")
 async def create_tenant_form(request: Request):
-    return request.app.state.templates.TemplateResponse('tenant_form.html', {'request': request, 'mode': 'create', 'tenant': {}})
+    return request.app.state.templates.TemplateResponse(request, 'tenant_form.html', {'request': request, 'mode': 'create', 'tenant': {}})
 
 @router.post("/tenants/new")
 async def create_tenant(
@@ -68,7 +68,7 @@ async def edit_tenant_form(request: Request, id: str):
     db = SessionLocal()
     try:
         tenant = db.query(models.Tenant).filter(models.Tenant.id == id).first()
-        return request.app.state.templates.TemplateResponse('tenant_form.html', {'request': request, 'mode': 'edit', 'tenant': tenant})
+        return request.app.state.templates.TemplateResponse(request, 'tenant_form.html', {'request': request, 'mode': 'edit', 'tenant': tenant})
     finally:
         db.close()
 
@@ -129,7 +129,7 @@ async def create_agreement_form(request: Request):
     try:
         tenants = db.query(models.Tenant).all()
         units = db.query(models.Unit).all()
-        return request.app.state.templates.TemplateResponse('agreement_form.html', {'request': request, 'mode': 'create', 'agreement': {}, 'tenants': tenants, 'units': units})
+        return request.app.state.templates.TemplateResponse(request, 'agreement_form.html', {'request': request, 'mode': 'create', 'agreement': {}, 'tenants': tenants, 'units': units})
     finally:
         db.close()
 
@@ -191,7 +191,7 @@ async def edit_agreement_form(request: Request, id: str):
         agreement = db.query(models.RentalAgreement).filter(models.RentalAgreement.id == id).first()
         tenants = db.query(models.Tenant).all()
         units = db.query(models.Unit).all()
-        return request.app.state.templates.TemplateResponse('agreement_form.html', {'request': request, 'mode': 'edit', 'agreement': agreement, 'tenants': tenants, 'units': units})
+        return request.app.state.templates.TemplateResponse(request, 'agreement_form.html', {'request': request, 'mode': 'edit', 'agreement': agreement, 'tenants': tenants, 'units': units})
     finally:
         db.close()
 
@@ -259,7 +259,7 @@ async def delete_agreement(id: str):
 # Unit CRUD
 @router.get("/units/new")
 async def create_unit_form(request: Request):
-    return request.app.state.templates.TemplateResponse('unit_form.html', {'request': request, 'mode': 'create', 'unit': {}})
+    return request.app.state.templates.TemplateResponse(request, 'unit_form.html', {'request': request, 'mode': 'create', 'unit': {}})
 
 @router.post("/units/new")
 async def create_unit(
@@ -289,7 +289,7 @@ async def edit_unit_form(request: Request, id: str):
     db = SessionLocal()
     try:
         unit = db.query(models.Unit).filter(models.Unit.id == id).first()
-        return request.app.state.templates.TemplateResponse('unit_form.html', {'request': request, 'mode': 'edit', 'unit': unit})
+        return request.app.state.templates.TemplateResponse(request, 'unit_form.html', {'request': request, 'mode': 'edit', 'unit': unit})
     finally:
         db.close()
 
@@ -321,7 +321,7 @@ async def create_deposit_form(request: Request):
     db = SessionLocal()
     try:
         tenants = db.query(models.Tenant).all()
-        return request.app.state.templates.TemplateResponse('deposit_form.html', {'request': request, 'mode': 'create', 'deposit': {}, 'tenants': tenants})
+        return request.app.state.templates.TemplateResponse(request, 'deposit_form.html', {'request': request, 'mode': 'create', 'deposit': {}, 'tenants': tenants})
     finally:
         db.close()
 
@@ -360,7 +360,7 @@ async def edit_deposit_form(request: Request, id: str):
     try:
         deposit = db.query(models.Deposit).filter(models.Deposit.id == id).first()
         tenants = db.query(models.Tenant).all()
-        return request.app.state.templates.TemplateResponse('deposit_form.html', {'request': request, 'mode': 'edit', 'deposit': deposit, 'tenants': tenants})
+        return request.app.state.templates.TemplateResponse(request, 'deposit_form.html', {'request': request, 'mode': 'edit', 'deposit': deposit, 'tenants': tenants})
     finally:
         db.close()
 
@@ -395,7 +395,7 @@ async def edit_deposit(
 # Witness CRUD
 @router.get("/witnesses/new")
 async def create_witness_form(request: Request):
-    return request.app.state.templates.TemplateResponse('witness_form.html', {'request': request, 'mode': 'create', 'witness': {}})
+    return request.app.state.templates.TemplateResponse(request, 'witness_form.html', {'request': request, 'mode': 'create', 'witness': {}})
 
 @router.post("/witnesses/new")
 async def create_witness(
@@ -423,7 +423,7 @@ async def edit_witness_form(request: Request, id: str):
     db = SessionLocal()
     try:
         witness = db.query(models.Witness).filter(models.Witness.id == id).first()
-        return request.app.state.templates.TemplateResponse('witness_form.html', {'request': request, 'mode': 'edit', 'witness': witness})
+        return request.app.state.templates.TemplateResponse(request, 'witness_form.html', {'request': request, 'mode': 'edit', 'witness': witness})
     finally:
         db.close()
 
@@ -479,7 +479,7 @@ async def renew_agreement_form(request: Request, agr_id: str):
             'agreement_status': 'Active',
             'remarks': f'Renewal of {old.id}',
         }
-        return request.app.state.templates.TemplateResponse('agreement_form.html', {
+        return request.app.state.templates.TemplateResponse(request, 'agreement_form.html', {
             'request': request, 'mode': 'create', 'agreement': agreement,
             'tenants': [{'id': t.id, 'name': t.name} for t in tenants],
             'units': [{'id': u.id, 'unit_no': u.unit_no} for u in units],

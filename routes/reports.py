@@ -44,7 +44,7 @@ def reports_dashboard(request: Request):
                 'status': t.current_status
             })
             
-        return request.app.state.templates.TemplateResponse('reports.html', {
+        return request.app.state.templates.TemplateResponse(request, 'reports.html', {
             'request': request,
             'total_expected': total_expected,
             'total_collected': total_collected,

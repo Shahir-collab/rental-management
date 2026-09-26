@@ -41,7 +41,7 @@ def list_documents(request: Request):
                 'original_filename': doc.original_filename,
                 'uploaded_at': doc.uploaded_at
             })
-        return request.app.state.templates.TemplateResponse('documents.html', {'request': request, 'documents': documents})
+        return request.app.state.templates.TemplateResponse(request, 'documents.html', {'request': request, 'documents': documents})
     finally:
         db.close()
 
@@ -51,7 +51,7 @@ def upload_form(request: Request):
     try:
         tenants = db.query(Tenant).all()
         agreements = db.query(RentalAgreement).all()
-        return request.app.state.templates.TemplateResponse('document_upload.html', {
+        return request.app.state.templates.TemplateResponse(request, 'document_upload.html', {
             'request': request,
             'tenants': tenants,
             'agreements': agreements

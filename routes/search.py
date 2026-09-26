@@ -73,7 +73,7 @@ def search(request: Request, q: str = ""):
                     "agreement_id": link.agreement_id if link else "",
                 })
 
-        return request.app.state.templates.TemplateResponse("search_results.html", {
+        return request.app.state.templates.TemplateResponse(request, "search_results.html", {
             "request": request,
             "query": q,
             "tenant_results": tenant_results,

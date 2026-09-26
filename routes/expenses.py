@@ -34,7 +34,7 @@ def list_expenses(request: Request, category: str = None):
                 "unit": e.unit_or_area or "",
             })
 
-        return request.app.state.templates.TemplateResponse("expenses.html", {
+        return request.app.state.templates.TemplateResponse(request, "expenses.html", {
             "request": request,
             "expenses": expenses,
             "categories": EXPENSE_CATEGORIES,

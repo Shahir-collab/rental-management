@@ -48,7 +48,7 @@ def rent_collection(request: Request):
             "collection_pct": round(collection_pct, 1),
         }
 
-        return request.app.state.templates.TemplateResponse("rent_collection.html", {
+        return request.app.state.templates.TemplateResponse(request, "rent_collection.html", {
             "request": request,
             "charges": charges,
             "summary": summary,

@@ -40,7 +40,7 @@ def data_quality_issues(request: Request):
             "info": sum(1 for i in issues if i["severity"] == "Informational"),
         }
 
-        return request.app.state.templates.TemplateResponse("data_quality.html", {
+        return request.app.state.templates.TemplateResponse(request, "data_quality.html", {
             "request": request,
             "issues": issues,
             "severity_counts": severity_counts,

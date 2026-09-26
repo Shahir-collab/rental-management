@@ -39,7 +39,7 @@ def list_units(request: Request):
                 "monthly_rent": monthly_rent,
             })
 
-        return request.app.state.templates.TemplateResponse("units.html", {
+        return request.app.state.templates.TemplateResponse(request, "units.html", {
             "request": request,
             "units": units,
         })
@@ -53,7 +53,7 @@ def unit_detail(request: Request, unit_id: str):
     try:
         unit = db.query(Unit).filter(Unit.id == unit_id).first()
         if not unit:
-            return request.app.state.templates.TemplateResponse("unit_detail.html", {
+            return request.app.state.templates.TemplateResponse(request, "unit_detail.html", {
                 "request": request, "unit": None, "current_residence": None, "history": []
             })
 
@@ -94,7 +94,7 @@ def unit_detail(request: Request, unit_id: str):
             "occupancy_status": unit.occupancy_status or "Vacant",
         }
 
-        return request.app.state.templates.TemplateResponse("unit_detail.html", {
+        return request.app.state.templates.TemplateResponse(request, "unit_detail.html", {
             "request": request,
             "unit": unit_data,
             "current_residence": current_residence,

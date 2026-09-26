@@ -37,7 +37,7 @@ def list_deposits(request: Request):
 
         totals = {"total": total, "held": held, "adjusted": adjusted, "unknown": unknown}
 
-        return request.app.state.templates.TemplateResponse("deposits.html", {
+        return request.app.state.templates.TemplateResponse(request, "deposits.html", {
             "request": request,
             "deposits": deposits,
             "totals": totals,

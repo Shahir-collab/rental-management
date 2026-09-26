@@ -39,7 +39,7 @@ def list_communications(request: Request):
                 'follow_up_date': log.follow_up_date,
                 'status': log.status
             })
-        return request.app.state.templates.TemplateResponse('communications.html', {'request': request, 'logs': logs})
+        return request.app.state.templates.TemplateResponse(request, 'communications.html', {'request': request, 'logs': logs})
     finally:
         db.close()
 
@@ -48,7 +48,7 @@ def new_communication(request: Request, tenant_id: str = None):
     db = SessionLocal()
     try:
         tenants = db.query(Tenant).all()
-        return request.app.state.templates.TemplateResponse('communication_form.html', {
+        return request.app.state.templates.TemplateResponse(request, 'communication_form.html', {
             'request': request,
             'tenants': tenants,
             'selected_tenant': tenant_id,
@@ -98,7 +98,7 @@ def edit_communication(request: Request, log_id: str):
     try:
         log = db.query(CommunicationLog).filter(CommunicationLog.id == log_id).first()
         tenants = db.query(Tenant).all()
-        return request.app.state.templates.TemplateResponse('communication_form.html', {
+        return request.app.state.templates.TemplateResponse(request, 'communication_form.html', {
             'request': request,
             'tenants': tenants,
             'log': log,

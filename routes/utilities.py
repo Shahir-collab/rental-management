@@ -35,7 +35,7 @@ def list_utilities(request: Request):
                 "method": c.payment_method or "",
             })
 
-        return request.app.state.templates.TemplateResponse("utilities.html", {
+        return request.app.state.templates.TemplateResponse(request, "utilities.html", {
             "request": request,
             "utilities": utilities,
         })

@@ -122,6 +122,6 @@ def dashboard(request: Request):
             "charges_outstanding": charges_outstanding,
             "alerts": alerts,
         }
-        return request.app.state.templates.TemplateResponse("dashboard.html", context)
+        return request.app.state.templates.TemplateResponse(request, "dashboard.html", context)
     finally:
         db.close()

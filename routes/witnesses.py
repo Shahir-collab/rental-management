@@ -46,7 +46,7 @@ def list_witnesses(request: Request):
                     "remarks": "",
                 })
 
-        return request.app.state.templates.TemplateResponse("witnesses.html", {
+        return request.app.state.templates.TemplateResponse(request, "witnesses.html", {
             "request": request,
             "witnesses": witnesses,
         })

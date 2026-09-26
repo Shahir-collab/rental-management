@@ -23,7 +23,7 @@ def move_in_form(request: Request, unit_id: str = None):
     try:
         unit = db.query(Unit).filter(Unit.id == unit_id).first()
         tenants = db.query(Tenant).all()
-        return request.app.state.templates.TemplateResponse('move_form.html', {
+        return request.app.state.templates.TemplateResponse(request, 'move_form.html', {
             'request': request,
             'event_type': 'Move-In',
             'unit': unit,
@@ -112,7 +112,7 @@ def move_out_form(request: Request, residence_id: str = None):
             ).all()
             deposits_held = sum([d.security_deposit for d in deposits])
 
-        return request.app.state.templates.TemplateResponse('move_form.html', {
+        return request.app.state.templates.TemplateResponse(request, 'move_form.html', {
             'request': request,
             'event_type': 'Move-Out',
             'residence': residence,
