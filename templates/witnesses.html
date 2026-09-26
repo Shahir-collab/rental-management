@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Witnesses - Rental Management{% endblock %}
+{% block page_title %}Witnesses{% endblock %}
+
+{% block content %}
+<div class="flex justify-end mb-4">
+    <a href="/manage/witnesses/new" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition">+ Add Witness</a>
+</div>
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-6 py-3 font-semibold text-gray-600">ID</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Name</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Role</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Tenant</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Agreement</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Date</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Address / Remarks</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for w in witnesses %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-gray-500">{{ w.id }}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900">{{ w.name }}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">{{ w.role }}</span></td>
+                    <td class="px-6 py-4">{{ w.tenant_name }}</td>
+                    <td class="px-6 py-4"><a href="/agreements/{{ w.agreement_id }}" class="text-blue-600 hover:underline">#{{ w.agreement_id }}</a></td>
+                    <td class="px-6 py-4">{{ w.date }}</td>
+                    <td class="px-6 py-4 text-gray-500 text-xs truncate max-w-xs" title="{{ w.address }} - {{ w.remarks }}">{{ w.address }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        No witness records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

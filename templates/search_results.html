@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - Rental Management{% endblock %}
+{% block page_title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-xl font-medium text-gray-800">Results for "<span class="font-bold text-gray-900">{{ query }}</span>"</h2>
+</div>
+
+<div class="space-y-8">
+    {% if tenant_results %}
+    <div>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-800">Tenants</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for t in tenant_results %}
+            <a href="/tenants/{{ t.id }}" class="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition">
+                <div class="flex justify-between">
+                    <h4 class="font-bold text-blue-600">{{ t.name }}</h4>
+                    <span class="text-xs text-gray-500">ID: {{ t.id }}</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">Type: {{ t.tenant_type|capitalize }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if unit_results %}
+    <div>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-800">Units</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for u in unit_results %}
+            <a href="/units/{{ u.id }}" class="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition">
+                <div class="flex justify-between">
+                    <h4 class="font-bold text-blue-600">Unit {{ u.unit_no }}</h4>
+                    <span class="px-2 py-0.5 text-xs rounded bg-gray-100">{{ u.occupancy_status|upper }}</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1 truncate">{{ u.description }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if agreement_results %}
+    <div>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-800">Agreements</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for a in agreement_results %}
+            <a href="/agreements/{{ a.id }}" class="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition">
+                <div class="flex justify-between">
+                    <h4 class="font-bold text-blue-600">Agreement #{{ a.id }}</h4>
+                    <span class="text-xs text-gray-500">{{ a.status }}</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">Unit: {{ a.unit_no }} | Tenant: {{ a.tenant_name }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if witness_results %}
+    <div>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-800">Witnesses</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for w in witness_results %}
+            <a href="/agreements/{{ w.agreement_id }}" class="block bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition">
+                <h4 class="font-bold text-blue-600">{{ w.name }}</h4>
+                <p class="text-sm text-gray-600 mt-1">Role: {{ w.role }} | Agreement: #{{ w.agreement_id }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not tenant_results and not unit_results and not agreement_results and not witness_results %}
+    <div class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900">No results found</h3>
+        <p class="text-gray-500 mt-1">We couldn't find anything matching your search term.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if mode == 'edit' %}Edit Deposit{% else %}Add Deposit{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li>
+                <div class="flex items-center">
+                    <a href="/deposits" class="text-sm font-medium text-gray-700 hover:text-blue-600">Deposits</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                    </svg>
+                    <span class="text-sm font-medium text-gray-500 ml-1 md:ml-2">{% if mode == 'edit' %}Edit Deposit{% else %}Add Deposit{% endif %}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">{% if mode == 'edit' %}Edit Deposit{% else %}Add Deposit{% endif %}</h1>
+        </div>
+
+        <form action="{% if mode == 'edit' %}/manage/deposits/{{ deposit.id }}/edit{% else %}/manage/deposits/new{% endif %}" method="POST" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tenant *</label>
+                    <select name="tenant_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select a tenant</option>
+                        {% for t in tenants %}
+                        <option value="{{ t.id }}" {% if deposit.tenant_id == t.id %}selected{% endif %}>{{ t.name }} ({{ t.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Unit No</label>
+                    <input type="text" name="unit_no" value="{{ deposit.unit_no|default('') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Security Deposit</label>
+                    <input type="number" step="0.01" name="security_deposit" value="{{ deposit.security_deposit|default('') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deposit Date</label>
+                    <input type="date" name="deposit_date" value="{{ deposit.deposit_date|default('') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Advance Rent</label>
+                    <input type="number" step="0.01" name="advance_rent" value="{{ deposit.advance_rent|default('') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                        <option value="Held" {% if deposit.status == 'Held' %}selected{% endif %}>Held</option>
+                        <option value="Adjusted" {% if deposit.status == 'Adjusted' %}selected{% endif %}>Adjusted</option>
+                        <option value="Refunded" {% if deposit.status == 'Refunded' %}selected{% endif %}>Refunded</option>
+                        <option value="Unknown" {% if deposit.status == 'Unknown' %}selected{% endif %}>Unknown</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+                    <textarea name="remarks" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">{{ deposit.remarks|default('') }}</textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-4 mt-8 pt-4 border-t">
+                <a href="/deposits" class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center shadow-sm">Cancel</a>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg px-6 py-2.5 text-sm shadow-sm">
+                    {% if mode == 'edit' %}Save Changes{% else %}Create Deposit{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

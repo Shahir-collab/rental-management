@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Agreement {{ agreement.id }} - Rental Management{% endblock %}
+{% block page_title %}Agreement Details{% endblock %}
+
+{% block content %}
+<div class="mb-4 flex justify-between items-center">
+    <div class="text-sm text-gray-500">
+        <a href="/agreements" class="hover:text-blue-600">Agreements</a> &gt; <span class="text-gray-800">#{{ agreement.id }}</span>
+    </div>
+    <div class="flex space-x-2">
+        <a href="/manage/agreements/{{ agreement.id }}/edit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg shadow-sm transition">Edit</a>
+        {% if agreement.status == 'Active' or agreement.status == 'Expiring Soon' %}
+        <a href="/manage/agreements/{{ agreement.id }}/renew" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg shadow-sm transition">Renew</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Agreement Info -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-start border-b pb-4 mb-4">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900">Agreement #{{ agreement.id }}</h2>
+                <p class="text-sm text-gray-500 mt-1">Unit {{ agreement.unit_no }} • <a href="/tenants/{{ agreement.tenant_id }}" class="text-blue-600 hover:underline">{{ agreement.tenant_name }}</a></p>
+            </div>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full {% if agreement.status == 'Active' %}bg-green-100 text-green-800{% elif agreement.status == 'Expiring Soon' %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ agreement.status }}
+            </span>
+        </div>
+        <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Start Date</p>
+                <p class="font-medium mt-1">{{ agreement.start_date }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">End Date</p>
+                <p class="font-medium mt-1">{{ agreement.end_date }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Monthly Rent</p>
+                <p class="font-medium mt-1">₹{{ '{:,.0f}'.format(agreement.rent) }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Deposit</p>
+                <p class="font-medium mt-1">₹{{ '{:,.0f}'.format(agreement.deposit) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contract Details (new enriched fields) -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold mb-4 border-b pb-2">Contract Details</h3>
+        <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+            {% if agreement.permitted_use %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Permitted Use</p>
+                <p class="font-medium mt-1">{{ agreement.permitted_use }}</p>
+            </div>
+            {% endif %}
+            {% if agreement.lease_months %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Lease Duration</p>
+                <p class="font-medium mt-1">{{ agreement.lease_months }} months</p>
+            </div>
+            {% endif %}
+            {% if agreement.stamp_paper_grn %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Stamp Paper GRN</p>
+                <p class="font-medium mt-1 text-xs break-all">{{ agreement.stamp_paper_grn }}</p>
+            </div>
+            {% endif %}
+            {% if agreement.stamp_paper_value %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Stamp Paper Value</p>
+                <p class="font-medium mt-1">₹{{ '{:,.0f}'.format(agreement.stamp_paper_value) }}</p>
+            </div>
+            {% endif %}
+            {% if agreement.late_interest_rate %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Late Interest Rate</p>
+                <p class="font-medium mt-1">{{ agreement.late_interest_rate }}% p.a.</p>
+            </div>
+            {% endif %}
+            {% if agreement.notice_period %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Notice Period</p>
+                <p class="font-medium mt-1">{{ agreement.notice_period }}</p>
+            </div>
+            {% endif %}
+            {% if agreement.rent_due_date %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Rent Due Date</p>
+                <p class="font-medium mt-1">{{ agreement.rent_due_date }}</p>
+            </div>
+            {% endif %}
+            {% if agreement.signature_status %}
+            <div class="col-span-2">
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Signature Status</p>
+                <p class="font-medium mt-1 text-sm">{{ agreement.signature_status }}</p>
+            </div>
+            {% endif %}
+            {% if agreement.landlord %}
+            <div>
+                <p class="text-gray-500 text-xs uppercase tracking-wider">Landlord</p>
+                <p class="font-medium mt-1">{{ agreement.landlord }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Witnesses -->
+<div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <h3 class="text-lg font-semibold mb-4 border-b pb-2">Witnesses</h3>
+    <div class="space-y-4">
+        {% for witness in witnesses %}
+        <div class="bg-gray-50 rounded p-4 border border-gray-100">
+            <div class="flex justify-between items-start mb-2">
+                <h4 class="font-medium text-gray-900">{{ witness.name }}</h4>
+                <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">{{ witness.role }}</span>
+            </div>
+            <div class="text-sm text-gray-600 space-y-1">
+                <p><span class="text-gray-400">Address:</span> {{ witness.address }}</p>
+                {% if witness.remarks %}
+                <p><span class="text-gray-400">Remarks:</span> {{ witness.remarks }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm text-center py-4">No witnesses recorded for this agreement.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

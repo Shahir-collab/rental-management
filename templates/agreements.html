@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Agreements - Rental Management{% endblock %}
+{% block page_title %}Agreements{% endblock %}
+
+{% block content %}
+<div x-data="{ tab: 'All' }">
+    <!-- Tabs -->
+    <div class="flex justify-between items-center border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8">
+            <button @click="tab = 'All'" :class="tab === 'All' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">All</button>
+            <button @click="tab = 'Active'" :class="tab === 'Active' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">Active</button>
+            <button @click="tab = 'Expiring Soon'" :class="tab === 'Expiring Soon' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">Expiring Soon</button>
+            <button @click="tab = 'Expired'" :class="tab === 'Expired' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition">Expired</button>
+        </nav>
+        <a href="/manage/agreements/new" class="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition whitespace-nowrap mb-2">+ Add Agreement</a>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold text-gray-600">ID</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Tenant</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Unit</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Start</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">End</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Rent</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Deposit</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Status</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600 text-right">Days Remaining</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for agr in agreements %}
+                    <tr x-show="tab === 'All' || tab === '{{ agr.status }}'" class="hover:bg-gray-50 cursor-pointer" onclick="window.location.href='/agreements/{{ agr.id }}'">
+                        <td class="px-6 py-4 text-gray-500">{{ agr.id }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ agr.tenant_name }}</td>
+                        <td class="px-6 py-4">{{ agr.unit_no }}</td>
+                        <td class="px-6 py-4">{{ agr.start_date }}</td>
+                        <td class="px-6 py-4">{{ agr.end_date }}</td>
+                        <td class="px-6 py-4">₹{{ '{:,.0f}'.format(agr.rent) }}</td>
+                        <td class="px-6 py-4">₹{{ '{:,.0f}'.format(agr.deposit) }}</td>
+                        <td class="px-6 py-4">
+                            {% if agr.status == 'Active' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                            {% elif agr.status == 'Expiring Soon' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Expiring Soon</span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Expired</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            {% if agr.days_remaining is not none %}
+                                {% if agr.days_remaining < 0 %}
+                                    <span class="text-gray-500">Expired</span>
+                                {% else %}
+                                    {{ agr.days_remaining }}
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            No agreements found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

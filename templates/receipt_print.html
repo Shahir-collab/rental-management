@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt - {{ receipt.receipt_no }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: white;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+
+    <div class="max-w-2xl mx-auto bg-white p-8 border border-gray-300 shadow-sm">
+        
+        <!-- Action Buttons -->
+        <div class="no-print flex justify-between mb-8 pb-4 border-b">
+            <a href="/payments" class="text-blue-600 hover:underline">&larr; Back to Payments</a>
+            <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded shadow-sm hover:bg-blue-700">
+                Print Receipt
+            </button>
+        </div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold uppercase tracking-wider mb-2">Rent Receipt</h1>
+        </div>
+        
+        <div class="flex justify-between mb-6">
+            <div>
+                <span class="font-semibold text-gray-600">Receipt No:</span> 
+                <span class="font-bold">{{ receipt.receipt_no }}</span>
+            </div>
+            <div>
+                <span class="font-semibold text-gray-600">Date:</span> 
+                <span>{{ receipt.payment_date }}</span>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <p class="mb-2"><span class="font-semibold">Received from:</span> <span class="font-bold">{{ receipt.tenant_name }}</span></p>
+            <p class="mb-2"><span class="font-semibold">Unit No:</span> {{ receipt.unit_no }}</p>
+            <p class="mb-2"><span class="font-semibold">Amount:</span> <span class="font-bold text-lg">₹{{ "{:,.2f}".format(receipt.amount) }}</span></p>
+            <p class="mb-2"><span class="font-semibold">Amount in words:</span> {{ receipt.amount_in_words }}</p>
+            <p class="mb-2"><span class="font-semibold">For Period/Month:</span> {{ receipt.month }}</p>
+            <p class="mb-2"><span class="font-semibold">Payment Method:</span> {{ receipt.payment_method }} 
+                {% if receipt.reference_no %}(Ref: {{ receipt.reference_no }}){% endif %}
+            </p>
+        </div>
+
+        <div class="mt-12 flex justify-between">
+            <div class="text-center w-1/3">
+                <div class="border-b border-gray-400 mb-2 h-16"></div>
+                <p class="font-semibold">Tenant Signature</p>
+            </div>
+            <div class="text-center w-1/3">
+                <div class="border-b border-gray-400 mb-2 h-16 flex items-end justify-center">
+                    <!-- placeholder for signature -->
+                </div>
+                <p class="font-semibold">Landlord Signature</p>
+                <p class="text-sm">{{ receipt.landlord }}</p>
+                <p class="text-xs text-gray-600">{{ receipt.landlord_address }}</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

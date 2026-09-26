@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Tenants - Rental Management{% endblock %}
+{% block page_title %}Tenants{% endblock %}
+
+{% block content %}
+<div x-data="{ 
+    search: '', 
+    filter: 'All',
+    get filteredTenants() {
+        const trs = Array.from(document.querySelectorAll('tbody tr'));
+        let visibleCount = 0;
+        trs.forEach(tr => {
+            const text = tr.textContent.toLowerCase();
+            const status = tr.dataset.status;
+            const type = tr.dataset.type;
+            
+            const matchesSearch = text.includes(this.search.toLowerCase());
+            let matchesFilter = true;
+            if (this.filter === 'Active') matchesFilter = status === 'active';
+            else if (this.filter === 'Inactive') matchesFilter = status === 'inactive';
+            else if (this.filter === 'Residential') matchesFilter = type === 'residential';
+            else if (this.filter === 'Commercial') matchesFilter = type === 'commercial';
+
+            if (matchesSearch && matchesFilter) {
+                tr.style.display = '';
+                visibleCount++;
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+        document.getElementById('no-results').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+}">
+    <!-- Controls -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+        <div class="relative w-full sm:w-64">
+            <input x-model="search" @input="filteredTenants" type="text" placeholder="Search tenants..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm shadow-sm">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+        
+        <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+            <template x-for="f in ['All', 'Active', 'Inactive', 'Residential', 'Commercial']">
+                <button @click="filter = f; filteredTenants" :class="filter === f ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'" class="px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-300 shadow-sm transition whitespace-nowrap" x-text="f"></button>
+            </template>
+            <a href="/manage/tenants/new" class="ml-2 px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition whitespace-nowrap">+ Add Tenant</a>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold text-gray-600">ID</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Name</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Type</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Current Unit</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Rent</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Status</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600 text-center">Agreements</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for tenant in tenants %}
+                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location.href='/tenants/{{ tenant.id }}'" data-status="{{ tenant.current_status|lower }}" data-type="{{ tenant.tenant_type|lower }}">
+                        <td class="px-6 py-4 text-gray-500">{{ tenant.id }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ tenant.name }}</td>
+                        <td class="px-6 py-4">{{ tenant.tenant_type|capitalize }}</td>
+                        <td class="px-6 py-4">{{ tenant.current_unit|default('-') }}</td>
+                        <td class="px-6 py-4">{% if tenant.rent %}₹{{ '{:,.0f}'.format(tenant.rent) }}{% else %}-{% endif %}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if tenant.current_status|lower == 'active' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ tenant.current_status|capitalize }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">{{ tenant.agreement_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="no-results" style="display: {% if tenants %}none{% else %}block{% endif %};" class="py-12 text-center text-gray-500">
+            No tenants match your filters.
+        </div>
+    </div>
+</div>
+{% endblock %}

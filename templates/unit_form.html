@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if mode == 'edit' %}Edit Unit{% else %}Add Unit{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li>
+                <div class="flex items-center">
+                    <a href="/units" class="text-sm font-medium text-gray-700 hover:text-blue-600">Units</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                    </svg>
+                    <span class="text-sm font-medium text-gray-500 ml-1 md:ml-2">{% if mode == 'edit' %}Edit Unit{% else %}Add Unit{% endif %}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">{% if mode == 'edit' %}Edit Unit{% else %}Add Unit{% endif %}</h1>
+        </div>
+
+        <form action="{% if mode == 'edit' %}/manage/units/{{ unit.id }}/edit{% else %}/manage/units/new{% endif %}" method="POST" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Unit No *</label>
+                    <input type="text" name="unit_no" value="{{ unit.unit_no|default('') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Floor</label>
+                    <input type="text" name="floor" value="{{ unit.floor|default('') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Occupancy Status</label>
+                    <select name="occupancy_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
+                        <option value="Occupied" {% if unit.occupancy_status == 'Occupied' %}selected{% endif %}>Occupied</option>
+                        <option value="Vacant" {% if unit.occupancy_status == 'Vacant' %}selected{% endif %}>Vacant</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500">{{ unit.description|default('') }}</textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-4 mt-8 pt-4 border-t">
+                <a href="/units" class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center shadow-sm">Cancel</a>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg px-6 py-2.5 text-sm shadow-sm">
+                    {% if mode == 'edit' %}Save Changes{% else %}Create Unit{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

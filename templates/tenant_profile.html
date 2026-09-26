@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Tenant Profile - Rental Management{% endblock %}
+{% block page_title %}Tenant Profile{% endblock %}
+
+{% block content %}
+<div class="mb-4 text-sm text-gray-500">
+    <a href="/tenants" class="hover:text-blue-600">Tenants</a> > <span class="text-gray-800">{{ tenant.name }}</span>
+</div>
+
+<div class="space-y-6">
+    <!-- Header Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ tenant.name }}</h1>
+                <p class="text-gray-500 mt-1">ID: {{ tenant.id }}{% if tenant.father_name %} &middot; {{ tenant.father_name }}{% endif %}</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                    {{ tenant.tenant_type|capitalize }}
+                </span>
+                <span class="px-3 py-1 text-sm font-medium rounded-full {% if tenant.current_status|lower == 'active' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ tenant.current_status|capitalize }}
+                </span>
+                <a href="/manage/tenants/{{ tenant.id }}/edit" class="ml-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg shadow-sm transition">Edit</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-xs text-gray-500 uppercase tracking-wider">Total Stays</h3>
+            <p class="text-lg font-semibold mt-1">{{ stats.total_stays }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-xs text-gray-500 uppercase tracking-wider">Duration</h3>
+            <p class="text-lg font-semibold mt-1">{{ stats.total_months }} mo</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-xs text-gray-500 uppercase tracking-wider">Rent Due</h3>
+            <p class="text-lg font-semibold mt-1">₹{{ '{:,.0f}'.format(stats.total_rent_due) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-xs text-gray-500 uppercase tracking-wider">Total Paid</h3>
+            <p class="text-lg font-semibold mt-1 text-green-600">₹{{ '{:,.0f}'.format(stats.total_paid) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-xs text-gray-500 uppercase tracking-wider">Outstanding</h3>
+            <p class="text-lg font-semibold mt-1 text-red-600">₹{{ '{:,.0f}'.format(stats.total_outstanding) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-xs text-gray-500 uppercase tracking-wider">Deposits</h3>
+            <p class="text-lg font-semibold mt-1 text-blue-600">₹{{ '{:,.0f}'.format(stats.total_deposits) }}</p>
+        </div>
+    </div>
+
+    <!-- Layout: Left (Timeline + Notes) / Right (Agreements + Deposits) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column -->
+        <div class="space-y-6">
+            <!-- Residence Timeline -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold mb-4">Residence Timeline</h2>
+                {% if residences %}
+                <div class="relative border-l-2 border-gray-200 ml-3">
+                    {% for res in residences %}
+                    <div class="mb-6 ml-6">
+                        <span class="absolute flex items-center justify-center w-4 h-4 rounded-full -left-[9px] ring-4 ring-white {% if res.is_active %}bg-green-500{% else %}bg-gray-300{% endif %}"></span>
+                        <h3 class="font-medium text-gray-900">Unit {{ res.unit_no }}</h3>
+                        <p class="text-sm text-gray-500">{{ res.move_in }} to {{ res.move_out|default('Present') }}</p>
+                        <p class="text-sm mt-1 text-gray-600">₹{{ '{:,.0f}'.format(res.monthly_rent) }} / month ({{ res.duration_months }} months)</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">No residence history.</p>
+                {% endif %}
+            </div>
+
+            <!-- Notes -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold mb-2">Notes</h2>
+                <p class="text-sm text-gray-700 whitespace-pre-line">{{ tenant.notes|default('No notes available.', true) }}</p>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Agreements -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold mb-4">Agreements</h2>
+                <div class="space-y-4">
+                    {% for agr in agreements %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-medium">Agreement #{{ agr.id }} - Unit {{ agr.unit_no }}</h3>
+                                <p class="text-sm text-gray-500">{{ agr.start_date }} to {{ agr.end_date }}</p>
+                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full {% if agr.status == 'active' %}bg-green-100 text-green-800{% elif agr.status == 'expired' %}bg-gray-100 text-gray-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ agr.status|capitalize }}
+                            </span>
+                        </div>
+                        <div class="flex space-x-6 mt-3 text-sm">
+                            <div>
+                                <span class="text-gray-500">Rent:</span>
+                                <span class="font-medium">₹{{ '{:,.0f}'.format(agr.rent) }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Deposit:</span>
+                                <span class="font-medium">₹{{ '{:,.0f}'.format(agr.deposit) }}</span>
+                            </div>
+                        </div>
+                        {% set wit_list = witnesses|selectattr('agreement_id', 'equalto', agr.id)|list %}
+                        {% if wit_list %}
+                        <div class="mt-3 text-xs text-gray-500 border-t pt-2">
+                            <span class="font-medium">Witnesses:</span>
+                            {% for w in wit_list %}
+                                {{ w.witness_name }} ({{ w.role }}){% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-gray-500">No agreements found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Deposits -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold mb-4">Deposits</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-4 py-2 font-semibold text-gray-600">ID</th>
+                                <th class="px-4 py-2 font-semibold text-gray-600">Unit</th>
+                                <th class="px-4 py-2 font-semibold text-gray-600">Amount</th>
+                                <th class="px-4 py-2 font-semibold text-gray-600">Date</th>
+                                <th class="px-4 py-2 font-semibold text-gray-600">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for dep in deposits %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">{{ dep.id }}</td>
+                                <td class="px-4 py-3">{{ dep.unit_no }}</td>
+                                <td class="px-4 py-3 font-medium">₹{{ '{:,.0f}'.format(dep.amount) }}</td>
+                                <td class="px-4 py-3">{{ dep.date }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if dep.status == 'held' %}bg-green-100 text-green-800{% elif dep.status == 'refunded' %}bg-gray-100 text-gray-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {{ dep.status|capitalize }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="px-4 py-6 text-center text-gray-500">No deposits found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

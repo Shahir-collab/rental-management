@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/reports/export?format=csv" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg shadow-sm hover:bg-gray-700 font-medium text-sm">
+        Export CSV
+    </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-blue-500">
+        <h3 class="text-sm font-medium text-gray-500">Total Expected</h3>
+        <p class="mt-1 text-2xl font-semibold text-gray-900">₹{{ "{:,.2f}".format(total_expected) }}</p>
+    </div>
+    
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-green-500">
+        <h3 class="text-sm font-medium text-gray-500">Total Collected</h3>
+        <p class="mt-1 text-2xl font-semibold text-gray-900">₹{{ "{:,.2f}".format(total_collected) }}</p>
+    </div>
+    
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-red-500">
+        <h3 class="text-sm font-medium text-gray-500">Outstanding</h3>
+        <p class="mt-1 text-2xl font-semibold text-gray-900">₹{{ "{:,.2f}".format(outstanding) }}</p>
+    </div>
+    
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 border-l-4 border-l-purple-500">
+        <h3 class="text-sm font-medium text-gray-500">Collection Rate</h3>
+        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ "%.1f"|format(collection_rate) }}%</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Revenue Trend</h3>
+        <canvas id="revenueChart" height="200"></canvas>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Payment Methods</h3>
+        <canvas id="methodChart" height="200"></canvas>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Tenant Summary</h3>
+    </div>
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Rent</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Paid</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for t in tenant_summary %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ t.tenant_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ t.unit_no }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ "{:,.2f}".format(t.monthly_rent) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ "{:,.2f}".format(t.total_paid) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {% if t.balance > 0 %}text-red-600{% else %}text-green-600{% endif %}">₹{{ "{:,.2f}".format(t.balance) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ t.status }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No data available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prepare Data for Revenue Chart
+        const monthlyData = {{ monthly_data | tojson }};
+        const revCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.map(d => d.month),
+                datasets: [
+                    {
+                        label: 'Expected',
+                        data: monthlyData.map(d => d.expected),
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Collected',
+                        data: monthlyData.map(d => d.collected),
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Prepare Data for Method Chart
+        const methodData = {{ payment_methods | tojson }};
+        const methodCtx = document.getElementById('methodChart').getContext('2d');
+        new Chart(methodCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(methodData),
+                datasets: [{
+                    data: Object.values(methodData),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    });
+</script>
+{% endblock %}

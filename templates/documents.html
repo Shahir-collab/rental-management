@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Documents{% endblock %}
+{% block page_title %}Documents{% endblock %}
+
+{% block content %}
+<div class="mb-4 flex justify-between items-center">
+    <div></div>
+    <a href="/documents/upload" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 font-medium">+ Upload Document</a>
+</div>
+
+{% if not documents %}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center text-gray-500">
+    No documents found.
+</div>
+{% else %}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <table class="w-full text-left text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+            <tr>
+                <th class="px-4 py-3">ID</th>
+                <th class="px-4 py-3">Tenant</th>
+                <th class="px-4 py-3">Unit</th>
+                <th class="px-4 py-3">Type</th>
+                <th class="px-4 py-3">Filename</th>
+                <th class="px-4 py-3">Uploaded At</th>
+                <th class="px-4 py-3">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for doc in documents %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ doc.id }}</td>
+                <td class="px-4 py-3"><a href="/tenants/{{ doc.tenant_id }}" class="text-blue-600 hover:underline">{{ doc.tenant_name }}</a></td>
+                <td class="px-4 py-3">{{ doc.unit_no }}</td>
+                <td class="px-4 py-3">
+                    {% set bcolors = {'Agreement': 'bg-blue-100 text-blue-800', 'ID Proof': 'bg-purple-100 text-purple-800', 'Photo': 'bg-green-100 text-green-800', 'Receipt': 'bg-yellow-100 text-yellow-800'} %}
+                    {% set bg_class = bcolors.get(doc.doc_type, 'bg-gray-100 text-gray-800') %}
+                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ bg_class }}">{{ doc.doc_type }}</span>
+                </td>
+                <td class="px-4 py-3">{{ doc.original_filename }}</td>
+                <td class="px-4 py-3">{{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') if doc.uploaded_at else '' }}</td>
+                <td class="px-4 py-3 flex gap-2">
+                    <a href="/documents/{{ doc.id }}/download" class="text-blue-600 hover:text-blue-800 font-medium">Download</a>
+                    <form action="/documents/{{ doc.id }}/delete" method="POST" x-data @submit.prevent="if(confirm('Are you sure you want to delete this document?')) $el.submit()">
+                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Communications{% endblock %}
+{% block page_title %}Communication Log{% endblock %}
+
+{% block content %}
+<div x-data="{ tab: 'All' }">
+    <div class="mb-4 flex justify-between items-center">
+        <div class="flex space-x-2 border-b border-gray-200">
+            <button @click="tab = 'All'" :class="tab === 'All' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="px-4 py-2 border-b-2 font-medium text-sm">All</button>
+            <button @click="tab = 'Open'" :class="tab === 'Open' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="px-4 py-2 border-b-2 font-medium text-sm">Open</button>
+            <button @click="tab = 'Closed'" :class="tab === 'Closed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="px-4 py-2 border-b-2 font-medium text-sm">Closed</button>
+        </div>
+        <a href="/communications/new" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 font-medium">+ Add Entry</a>
+    </div>
+
+    <div class="space-y-4">
+        {% for log in logs %}
+        <div x-show="tab === 'All' || tab === '{{ log.status }}'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex items-center gap-3">
+                    <h3 class="font-bold text-gray-900">{{ log.subject }}</h3>
+                    {% set bcolors = {'Call': 'bg-blue-100 text-blue-800', 'Visit': 'bg-green-100 text-green-800', 'Complaint': 'bg-red-100 text-red-800', 'Note': 'bg-gray-100 text-gray-800', 'Reminder': 'bg-yellow-100 text-yellow-800'} %}
+                    {% set bg_class = bcolors.get(log.log_type, 'bg-gray-100 text-gray-800') %}
+                    <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ bg_class }}">{{ log.log_type }}</span>
+                </div>
+                <div class="flex gap-2 text-sm">
+                    <a href="/communications/{{ log.id }}/edit" class="text-blue-600 hover:underline">Edit</a>
+                    {% if log.status == 'Open' %}
+                    <form action="/communications/{{ log.id }}/close" method="POST">
+                        <button type="submit" class="text-gray-600 hover:text-gray-900">Close</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <p class="text-gray-700 text-sm mb-3 whitespace-pre-wrap">{{ log.description }}</p>
+            
+            <div class="flex items-center gap-4 text-xs text-gray-500">
+                <div>Tenant: <a href="/tenants/{{ log.tenant_id }}" class="text-blue-600 hover:underline">{{ log.tenant_name }}</a></div>
+                <div>Unit: <span class="font-medium text-gray-700">{{ log.unit_no }}</span></div>
+                <div>Logged: {{ log.logged_at.strftime('%Y-%m-%d') if log.logged_at else '' }}</div>
+                {% if log.follow_up_date %}
+                <div class="flex items-center gap-1 text-orange-600 font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Follow up: {{ log.follow_up_date.strftime('%Y-%m-%d') }}
+                </div>
+                {% endif %}
+                <div class="ml-auto">
+                    <span class="px-2 py-1 rounded text-xs font-medium {{ 'bg-green-100 text-green-800' if log.status == 'Open' else 'bg-gray-200 text-gray-700' }}">
+                        {{ log.status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% if not logs %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center text-gray-500">
+            No communication logs found.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

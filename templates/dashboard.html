@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Rental Management{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Alerts Panel -->
+    {% if alerts %}
+    <div class="space-y-2">
+        {% for alert in alerts %}
+        <div x-data="{ show: true }" x-show="show" x-transition.duration.300ms>
+        <a href="{{ alert.link }}" class="block rounded-lg border p-3 text-sm transition hover:shadow-sm relative group
+            {% if alert.type == 'danger' %}bg-red-50 border-red-200 text-red-800{% elif alert.type == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+            <div class="flex items-center pr-6">
+                {% if alert.icon == 'alert' %}
+                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>
+                {% elif alert.icon == 'clock' %}
+                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                {% elif alert.icon == 'rupee' %}
+                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1"></path></svg>
+                {% elif alert.icon == 'chat' %}
+                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                {% endif %}
+                <span>{{ alert.message }}</span>
+            </div>
+            <button @click.prevent.stop="show = false" class="absolute top-2.5 right-2.5 p-0.5 rounded-full hover:bg-black/10 transition" title="Dismiss">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- KPI Row 1 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Total Units</h3>
+            <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">{{ units_total }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Occupied</h3>
+            <p class="text-xl sm:text-2xl font-bold text-green-600 mt-1 sm:mt-2">{{ units_occupied }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Vacant</h3>
+            <p class="text-xl sm:text-2xl font-bold text-red-600 mt-1 sm:mt-2">{{ units_vacant }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Occupancy %</h3>
+            <p class="text-xl sm:text-2xl font-bold text-blue-600 mt-1 sm:mt-2">{{ occupancy_pct }}%</p>
+        </div>
+    </div>
+
+    <!-- KPI Row 2 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Monthly Rent</h3>
+            <p class="text-lg sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">₹{{ '{:,.0f}'.format(monthly_rent_active|default(0)) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Deposits Held</h3>
+            <p class="text-lg sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">₹{{ '{:,.0f}'.format(deposits_held|default(0)) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Active Tenants</h3>
+            <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">{{ active_tenants_count }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-6 cursor-pointer hover:bg-gray-50" onclick="window.location.href='/data-quality'">
+            <h3 class="text-gray-500 text-xs sm:text-sm font-medium">Data Issues</h3>
+            <p class="text-xl sm:text-2xl font-bold text-red-600 mt-1 sm:mt-2">{{ data_issues_count }}</p>
+        </div>
+    </div>
+
+    <!-- Rent Collection Summary -->
+    <h3 class="text-base sm:text-lg font-semibold text-gray-800 mt-6 sm:mt-8 mb-3 sm:mb-4">Rent Collection Summary</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Total Due</h3>
+            <p class="text-xl font-bold text-gray-900 mt-2">₹{{ '{:,.0f}'.format(charges_total_due|default(0)) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Collected</h3>
+            <p class="text-xl font-bold text-green-600 mt-2">₹{{ '{:,.0f}'.format(charges_total_paid|default(0)) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Outstanding</h3>
+            <p class="text-xl font-bold text-red-600 mt-2">₹{{ '{:,.0f}'.format(charges_outstanding|default(0)) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Collection %</h3>
+            <p class="text-xl font-bold text-blue-600 mt-2">
+                {% if charges_total_due %}
+                {{ ((charges_total_paid|default(0) / charges_total_due) * 100)|round(1) }}%
+                {% else %}
+                0%
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-4 text-center">Occupancy</h3>
+            <div class="relative h-64">
+                <canvas id="occupancyChart" 
+                    data-occupied="{{ units_occupied }}" 
+                    data-vacant="{{ units_vacant }}">
+                </canvas>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-4 text-center">Tenant Types</h3>
+            <div class="relative h-64">
+                <canvas id="tenantTypeChart" 
+                    data-residential="{{ tenant_type_residential }}" 
+                    data-commercial="{{ tenant_type_commercial }}">
+                </canvas>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-4 text-center">Agreement Status</h3>
+            <div class="relative h-64">
+                <canvas id="agreementChart" 
+                    data-active="{{ active_agreements_count }}" 
+                    data-expired="{{ expired_agreements_count }}">
+                </canvas>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-4 text-center">Rent Collection</h3>
+            <div class="relative h-64">
+                <canvas id="rentChart" 
+                    data-due="{{ charges_total_due|default(0) }}" 
+                    data-paid="{{ charges_total_paid|default(0) }}"
+                    data-outstanding="{{ charges_outstanding|default(0) }}">
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Tenants Table -->
+    <h3 class="text-lg font-semibold text-gray-800 mt-8 mb-4">Active Tenants</h3>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Tenant</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Unit</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Rent (₹)</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Agreement End</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Days Remaining</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for tenant in active_tenants_list %}
+                    <tr class="hover:bg-gray-50 even:bg-gray-50/50 cursor-pointer" onclick="window.location.href='/tenants/{{ tenant.tenant_id }}'">
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ tenant.name }}</td>
+                        <td class="px-6 py-4">{{ tenant.unit_no }}</td>
+                        <td class="px-6 py-4">₹{{ '{:,.0f}'.format(tenant.monthly_rent) }}</td>
+                        <td class="px-6 py-4">{{ tenant.agreement_end }}</td>
+                        <td class="px-6 py-4">
+                            {% if tenant.days_remaining <= 30 %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                {{ tenant.days_remaining }} days
+                            </span>
+                            {% elif tenant.days_remaining <= 90 %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                {{ tenant.days_remaining }} days
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ tenant.days_remaining }} days
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                            No active tenants found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

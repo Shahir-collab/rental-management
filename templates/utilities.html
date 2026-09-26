@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Utilities - Rental Management{% endblock %}
+{% block page_title %}Utilities{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    {% if utilities %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-6 py-3 font-semibold text-gray-600">ID</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Month</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Unit</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Electricity (₹)</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Water (₹)</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Maintenance (₹)</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Total (₹)</th>
+                    <th class="px-6 py-3 font-semibold text-gray-600">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for u in utilities %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-gray-500">{{ u.id }}</td>
+                    <td class="px-6 py-4 font-medium">{{ u.month }}</td>
+                    <td class="px-6 py-4">{{ u.unit }}</td>
+                    <td class="px-6 py-4">{{ '{:,.0f}'.format(u.electricity|default(0)) }}</td>
+                    <td class="px-6 py-4">{{ '{:,.0f}'.format(u.water|default(0)) }}</td>
+                    <td class="px-6 py-4">{{ '{:,.0f}'.format(u.maintenance|default(0)) }}</td>
+                    <td class="px-6 py-4 font-semibold">{{ '{:,.0f}'.format(u.total) }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if u.status|lower == 'paid' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ u.status|capitalize }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="py-16 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">No Utility Data</h3>
+        <p class="text-gray-500">No utility data has been recorded yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

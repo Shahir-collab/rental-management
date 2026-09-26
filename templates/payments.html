@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Payments{% endblock %}
+{% block page_title %}Payments{% endblock %}
+
+{% block content %}
+<div class="mb-4 flex flex-wrap gap-2">
+    <a href="/payments/new" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 font-medium text-sm">
+        + Record Payment
+    </a>
+    <form action="/payments/generate-monthly" method="POST" class="inline-block" onsubmit="return confirm('Generate monthly rent charges for all active tenants?');">
+        <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 font-medium text-sm">
+            Generate Monthly Charges
+        </button>
+    </form>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt#</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount (₹)</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for p in payments %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <a href="/receipts/{{ p.id }}" class="text-blue-600 hover:text-blue-900">{{ p.receipt_no }}</a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ p.tenant_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ p.unit_no }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ p.month }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ "{:,.2f}".format(p.amount) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ p.payment_date }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ p.payment_method }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ p.reference_no }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">No payments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

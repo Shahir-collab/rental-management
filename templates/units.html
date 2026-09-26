@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Units - Rental Management{% endblock %}
+{% block page_title %}Units{% endblock %}
+
+{% block content %}
+<div x-data="{ filter: 'All' }">
+    <!-- Filter -->
+    <div class="mb-6 flex justify-between items-center">
+        <div class="flex space-x-2">
+            <button @click="filter = 'All'" :class="filter === 'All' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'" class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 shadow-sm transition">All</button>
+            <button @click="filter = 'Occupied'" :class="filter === 'Occupied' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'" class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 shadow-sm transition">Occupied</button>
+            <button @click="filter = 'Vacant'" :class="filter === 'Vacant' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'" class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 shadow-sm transition">Vacant</button>
+        </div>
+        <a href="/manage/units/new" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition">+ Add Unit</a>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for unit in units %}
+        <div x-show="filter === 'All' || filter === '{{ unit.occupancy_status|capitalize }}'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition cursor-pointer flex flex-col" onclick="window.location.href='/units/{{ unit.id }}'">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">Unit {{ unit.unit_no }}</h3>
+                    <p class="text-sm text-gray-500">Floor: {{ unit.floor }}</p>
+                </div>
+                <span class="px-2.5 py-1 text-xs font-semibold rounded-full {% if unit.occupancy_status|lower == 'occupied' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ unit.occupancy_status|upper }}
+                </span>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4 flex-grow">{{ unit.description }}</p>
+            
+            {% if unit.occupancy_status|lower == 'occupied' %}
+            <div class="border-t border-gray-100 pt-4 mt-auto">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-medium text-gray-900 truncate">{{ unit.tenant_name }}</span>
+                    <span class="text-gray-500">{{ unit.tenant_type|capitalize }}</span>
+                </div>
+                <div class="mt-2 text-blue-600 font-semibold">
+                    ₹{{ '{:,.0f}'.format(unit.monthly_rent) }} / mo
+                </div>
+            </div>
+            {% else %}
+            <div class="border-t border-gray-100 pt-4 mt-auto text-center text-sm text-gray-400 italic">
+                Ready for occupancy
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-lg border border-gray-200">
+            <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            No units found.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

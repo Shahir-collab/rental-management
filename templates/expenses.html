@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Expenses - Rental Management{% endblock %}
+{% block page_title %}Expenses{% endblock %}
+
+{% block content %}
+<div x-data="{ 
+    filter: 'All',
+    get filteredExpenses() {
+        const trs = Array.from(document.querySelectorAll('tbody tr'));
+        let visibleCount = 0;
+        trs.forEach(tr => {
+            const cat = tr.dataset.category;
+            if (this.filter === 'All' || cat === this.filter) {
+                tr.style.display = '';
+                visibleCount++;
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+        const noRes = document.getElementById('no-expenses');
+        if(noRes) noRes.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+}">
+    <!-- Filter -->
+    <div class="mb-6">
+        <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Category</label>
+        <select id="categoryFilter" x-model="filter" @change="filteredExpenses" class="w-full sm:w-64 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 border">
+            <option value="All">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {% if expenses %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold text-gray-600">ID</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Date</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Category</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Description</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Amount (₹)</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Vendor</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Method</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for exp in expenses %}
+                    <tr class="hover:bg-gray-50" data-category="{{ exp.category }}">
+                        <td class="px-6 py-4 text-gray-500">{{ exp.id }}</td>
+                        <td class="px-6 py-4">{{ exp.date }}</td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">{{ exp.category }}</span></td>
+                        <td class="px-6 py-4 text-gray-900 truncate max-w-xs">{{ exp.description }}</td>
+                        <td class="px-6 py-4 font-semibold text-red-600">₹{{ '{:,.0f}'.format(exp.amount) }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ exp.vendor|default('-') }}</td>
+                        <td class="px-6 py-4 text-gray-500">{{ exp.method|default('-') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="no-expenses" style="display: none;" class="py-12 text-center text-gray-500">
+            No expenses found for this category.
+        </div>
+        {% else %}
+        <div class="py-16 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">No Expense Data</h3>
+            <p class="text-gray-500">No expense data has been recorded yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

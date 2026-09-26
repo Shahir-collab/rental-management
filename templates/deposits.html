@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Deposits - Rental Management{% endblock %}
+{% block page_title %}Deposits{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Action Bar -->
+    <div class="flex justify-end">
+        <a href="/manage/deposits/new" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg shadow-sm transition">+ Add Deposit</a>
+    </div>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-t-4 border-t-blue-500">
+            <h3 class="text-gray-500 text-sm font-medium">Total Deposits</h3>
+            <p class="text-2xl font-bold text-gray-900 mt-2">₹{{ '{:,.0f}'.format(totals.total) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-t-4 border-t-green-500">
+            <h3 class="text-gray-500 text-sm font-medium">Currently Held</h3>
+            <p class="text-2xl font-bold text-green-600 mt-2">₹{{ '{:,.0f}'.format(totals.held) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-t-4 border-t-indigo-500">
+            <h3 class="text-gray-500 text-sm font-medium">Adjusted/Used</h3>
+            <p class="text-2xl font-bold text-indigo-600 mt-2">₹{{ '{:,.0f}'.format(totals.adjusted) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-t-4 border-t-yellow-500">
+            <h3 class="text-gray-500 text-sm font-medium">Unknown Status</h3>
+            <p class="text-2xl font-bold text-yellow-600 mt-2">₹{{ '{:,.0f}'.format(totals.unknown) }}</p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold text-gray-600">ID</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Tenant</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Unit</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Amount</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Date</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Status</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Remaining</th>
+                        <th class="px-6 py-3 font-semibold text-gray-600">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for dep in deposits %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-gray-500">{{ dep.id }}</td>
+                        <td class="px-6 py-4 font-medium"><a href="/tenants/{{ dep.tenant_id }}" class="text-blue-600 hover:underline">{{ dep.tenant }}</a></td>
+                        <td class="px-6 py-4">{{ dep.unit }}</td>
+                        <td class="px-6 py-4 font-medium">₹{{ '{:,.0f}'.format(dep.amount) }}</td>
+                        <td class="px-6 py-4">{{ dep.date }}</td>
+                        <td class="px-6 py-4">
+                            {% if dep.status|lower == 'held' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Held</span>
+                            {% elif dep.status|lower == 'adjusted' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Adjusted</span>
+                            {% elif dep.status|lower == 'refunded' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Refunded</span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Unknown</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">₹{{ '{:,.0f}'.format(dep.remaining|default(dep.amount)) }}</td>
+                        <td class="px-6 py-4 text-gray-500 text-xs truncate max-w-xs" title="{{ dep.remarks }}">{{ dep.remarks|default('-') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                            No deposits found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

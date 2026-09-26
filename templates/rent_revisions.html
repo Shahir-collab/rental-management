@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Rent Revisions{% endblock %}
+{% block page_title %}Rent Revisions{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/rent-revisions/new" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 font-medium text-sm">
+        + New Revision
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Old Rent (₹)</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">New Rent (₹)</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effective Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for r in revisions %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ r.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ r.tenant_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ r.unit_no }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ "{:,.2f}".format(r.old_rent) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ "{:,.2f}".format(r.new_rent) }}</td>
+                
+                {% set change = r.new_rent - r.old_rent %}
+                {% set change_pct = (change / r.old_rent * 100) if r.old_rent > 0 else 0 %}
+                
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {% if change > 0 %}text-green-600{% elif change < 0 %}text-red-600{% else %}text-gray-500{% endif %}">
+                    {% if change > 0 %}+{% endif %}₹{{ "{:,.2f}".format(change) }} ({{ "%.1f"|format(change_pct) }}%)
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ r.effective_date }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ r.reason }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">No rent revisions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

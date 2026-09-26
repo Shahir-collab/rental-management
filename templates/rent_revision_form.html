@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}New Rent Revision{% endblock %}
+{% block page_title %}New Rent Revision{% endblock %}
+
+{% block content %}
+<div class="mb-4 text-sm text-gray-500">
+    <a href="/rent-revisions" class="hover:text-blue-600">Rent Revisions</a> &gt; <span class="text-gray-900">New Revision</span>
+</div>
+
+<div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200" x-data="{
+        tenant: '',
+        old_rent: {{ current_rent or 0 }},
+        new_rent: '',
+        changeInfo() {
+            if (this.old_rent && this.new_rent) {
+                let diff = this.new_rent - this.old_rent;
+                let pct = (diff / this.old_rent * 100).toFixed(1);
+                return (diff > 0 ? '+' : '') + '₹' + diff + ' (' + pct + '%)';
+            }
+            return '';
+        }
+    }">
+    <form action="/rent-revisions/new" method="POST" class="space-y-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tenant</label>
+                <select name="tenant_id" x-model="tenant" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm bg-white">
+                    <option value="">Select Tenant</option>
+                    {% for t in tenants %}
+                    <option value="{{ t.id }}">{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Current Rent (₹)</label>
+                <input type="number" name="old_rent" x-model="old_rent" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm bg-gray-100" readonly>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">New Rent (₹)</label>
+                <input type="number" name="new_rent" x-model="new_rent" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm">
+                <p class="text-xs text-gray-500 mt-1" x-text="changeInfo()"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Effective Date</label>
+                <input type="date" name="effective_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm">
+            </div>
+            
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                <textarea name="reason" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm"></textarea>
+            </div>
+            
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Approved By</label>
+                <input type="text" name="approved_by" value="Abdul Nazar" required class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm">
+            </div>
+        </div>
+        
+        <div class="mt-6">
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 font-medium text-sm">
+                Record Revision
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

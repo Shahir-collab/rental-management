@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Unit {{ unit.unit_no }} - Rental Management{% endblock %}
+{% block page_title %}Unit Details{% endblock %}
+
+{% block content %}
+<div class="mb-4 flex justify-between items-center">
+    <div class="text-sm text-gray-500">
+        <a href="/units" class="hover:text-blue-600">Units</a> &gt; <span class="text-gray-800">Unit {{ unit.unit_no }}</span>
+    </div>
+    <div class="flex space-x-2">
+        <a href="/manage/units/{{ unit.id }}/edit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg shadow-sm transition">Edit</a>
+        {% if unit.occupancy_status|lower == 'vacant' %}
+        <a href="/move/in?unit_id={{ unit.id }}" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg shadow-sm transition">Move In Tenant</a>
+        {% else %}
+        <a href="/move/out?unit_id={{ unit.id }}" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-lg shadow-sm transition">Move Out Tenant</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Unit Info -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-start mb-4">
+            <h2 class="text-2xl font-bold text-gray-900">Unit {{ unit.unit_no }}</h2>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full {% if unit.occupancy_status|lower == 'occupied' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {{ unit.occupancy_status|upper }}
+            </span>
+        </div>
+        <div class="space-y-3 text-sm text-gray-600">
+            <p><span class="font-medium text-gray-900">Floor:</span> {{ unit.floor }}</p>
+            <p><span class="font-medium text-gray-900">Description:</span> {{ unit.description }}</p>
+        </div>
+    </div>
+
+    <!-- Current Tenant -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold mb-4 border-b pb-2">Current Occupancy</h3>
+        {% if current_residence %}
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <p class="text-gray-500">Tenant</p>
+                <p class="font-medium text-lg mt-1"><a href="/tenants/{{ current_residence.tenant_id }}" class="text-blue-600 hover:underline">{{ current_residence.tenant_name }}</a></p>
+            </div>
+            <div>
+                <p class="text-gray-500">Type</p>
+                <p class="font-medium mt-1">{{ current_residence.tenant_type|capitalize }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500">Monthly Rent</p>
+                <p class="font-medium text-green-600 mt-1">₹{{ '{:,.0f}'.format(current_residence.monthly_rent) }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500">Agreement Status</p>
+                <p class="font-medium mt-1">{{ current_residence.agreement_status|capitalize }}</p>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-6">This unit is currently vacant.</p>
+        {% endif %}
+    </div>
+
+    <!-- History Table -->
+    <div class="lg:col-span-3 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold mb-4">Residence History</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-4 py-2 font-semibold text-gray-600">Period</th>
+                        <th class="px-4 py-2 font-semibold text-gray-600">Tenant</th>
+                        <th class="px-4 py-2 font-semibold text-gray-600">Duration</th>
+                        <th class="px-4 py-2 font-semibold text-gray-600">Rent</th>
+                        <th class="px-4 py-2 font-semibold text-gray-600">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for item in history %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3">{{ item.move_in }} to {{ item.move_out|default('Present') }}</td>
+                        <td class="px-4 py-3 font-medium"><a href="/tenants/{{ item.tenant_id }}" class="text-blue-600 hover:underline">{{ item.tenant_name }}</a></td>
+                        <td class="px-4 py-3">{{ item.duration }}</td>
+                        <td class="px-4 py-3">₹{{ '{:,.0f}'.format(item.rent) }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs rounded-full {% if item.status|lower == 'active' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ item.status|capitalize }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">No history available for this unit.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
